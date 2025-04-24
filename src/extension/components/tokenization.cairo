@@ -1,6 +1,7 @@
 #[starknet::component]
 mod tokenization_component {
-    use alexandria_math::i257::i257;
+    use alexandria_math::i257::{i257, I257Trait};
+    use core::num::traits::Zero;
     use integer::BoundedInt;
     use starknet::{ContractAddress, get_contract_address, deploy_syscall};
     use vesu::{
@@ -44,7 +45,7 @@ mod tokenization_component {
         /// # Arguments
         /// * `v_token_class_hash` - The class hash of the vToken contract
         fn set_v_token_class_hash(ref self: ComponentState<TContractState>, v_token_class_hash: felt252) {
-            assert!(self.v_token_class_hash.read() == Zeroable::zero(), "already-set");
+            assert!(self.v_token_class_hash.read() == Zero::zero(), "already-set");
             self.v_token_class_hash.write(v_token_class_hash);
         }
 
@@ -86,7 +87,7 @@ mod tokenization_component {
             v_token_symbol: felt252
         ) {
             assert!(
-                self.v_token_for_collateral_asset.read((pool_id, collateral_asset)) == Zeroable::zero(),
+                self.v_token_for_collateral_asset.read((pool_id, collateral_asset)) == Zero::zero(),
                 "v-token-already-created"
             );
 
@@ -129,11 +130,11 @@ mod tokenization_component {
             amount: i257
         ) {
             let v_token = self.v_token_for_collateral_asset.read((pool_id, collateral_asset));
-            assert!(v_token != Zeroable::zero(), "unknown-collateral-asset");
-            if amount > Zeroable::zero() {
-                IVTokenDispatcher { contract_address: v_token }.mint_v_token(user, amount.abs);
-            } else if amount < Zeroable::zero() {
-                IVTokenDispatcher { contract_address: v_token }.burn_v_token(user, amount.abs);
+            assert!(v_token != Zero::zero(), "unknown-collateral-asset");
+            if amount > Zero::zero() {
+                IVTokenDispatcher { contract_address: v_token }.mint_v_token(user, amount.abs());
+            } else if amount < Zero::zero() {
+                IVTokenDispatcher { contract_address: v_token }.burn_v_token(user, amount.abs());
             }
         }
     }

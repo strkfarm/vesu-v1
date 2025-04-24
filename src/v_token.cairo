@@ -30,7 +30,7 @@ trait IVToken<TContractState> {
 }
 #[starknet::contract]
 mod VToken {
-    use alexandria_math::i257::{i257, i257_new};
+    use alexandria_math::i257::{i257, I257Trait};
     use integer::BoundedInt;
     use starknet::{ContractAddress, get_caller_address, get_contract_address, event::EventEmitter};
     use vesu::{
@@ -167,7 +167,7 @@ mod VToken {
             let total_debt = self
                 .singleton()
                 .calculate_debt(
-                    i257_new(asset_config.total_nominal_debt, false),
+                    I257Trait::new(asset_config.total_nominal_debt, false),
                     asset_config.last_rate_accumulator,
                     asset_config.scale
                 );
@@ -253,7 +253,7 @@ mod VToken {
             self
                 .singleton()
                 .calculate_collateral_unsafe(
-                    self.pool_id.read(), self.asset.read(), i257_new(self.erc20.total_supply(), true)
+                    self.pool_id.read(), self.asset.read(), I257Trait::new(self.erc20.total_supply(), true)
                 )
         }
 
@@ -265,7 +265,7 @@ mod VToken {
         fn convert_to_shares(self: @ContractState, assets: u256) -> u256 {
             self
                 .singleton()
-                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), i257_new(assets, false))
+                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(assets, false))
         }
 
         /// Converts an amount of vToken shares to the equivalent amount of assets
@@ -274,7 +274,7 @@ mod VToken {
         /// # Returns
         /// * amount of assets [asset scale]
         fn convert_to_assets(self: @ContractState, shares: u256) -> u256 {
-            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), i257_new(shares, true))
+            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(shares, true))
         }
 
         /// Returns the maximum amount of assets that can be deposited via the vToken
@@ -288,7 +288,7 @@ mod VToken {
             }
             let (asset_config, _) = self.singleton().asset_config_unsafe(self.pool_id.read(), self.asset.read());
             let room = integer::BoundedU128::max().into() - asset_config.total_collateral_shares;
-            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), i257_new(room, false))
+            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(room, false))
         }
 
         /// Returns the amount of vToken shares that will be minted for the given amount of deposited assets
@@ -302,7 +302,7 @@ mod VToken {
             }
             self
                 .singleton()
-                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), i257_new(assets, false))
+                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(assets, false))
         }
 
         /// Deposits assets into the pool and mints vTokens (shares) to the receiver
@@ -322,13 +322,13 @@ mod VToken {
                 collateral: Amount {
                     amount_type: AmountType::Delta,
                     denomination: AmountDenomination::Assets,
-                    value: i257_new(assets, false),
+                    value: I257Trait::new(assets, false),
                 },
                 debt: Default::default(),
                 data: ArrayTrait::new().span()
             };
 
-            let shares = self.singleton().modify_position(params).collateral_shares_delta.abs;
+            let shares = self.singleton().modify_position(params).collateral_shares_delta.abs();
 
             self.erc20._mint(receiver, shares);
 
@@ -361,7 +361,7 @@ mod VToken {
             }
             self
                 .singleton()
-                .calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), i257_new(shares, false))
+                .calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(shares, false))
         }
 
         /// Mints vToken shares to the receiver by depositing assets into the pool
@@ -373,7 +373,7 @@ mod VToken {
         fn mint(ref self: ContractState, shares: u256, receiver: ContractAddress) -> u256 {
             let assets_estimate = self
                 .singleton()
-                .calculate_collateral(self.pool_id.read(), self.asset.read(), i257_new(shares, false));
+                .calculate_collateral(self.pool_id.read(), self.asset.read(), I257Trait::new(shares, false));
 
             // transfer an estimated amount of assets to the contract first to ensure that minting of vTokens
             // happens after the deposit
@@ -387,16 +387,16 @@ mod VToken {
                 collateral: Amount {
                     amount_type: AmountType::Delta,
                     denomination: AmountDenomination::Native,
-                    value: i257_new(shares, false),
+                    value: I257Trait::new(shares, false),
                 },
                 debt: Default::default(),
                 data: ArrayTrait::new().span()
             };
 
             let response = self.singleton().modify_position(params);
-            let assets = response.collateral_delta.abs;
+            let assets = response.collateral_delta.abs();
             // take inflation fee into account for the first deposit
-            let shares = response.collateral_shares_delta.abs;
+            let shares = response.collateral_shares_delta.abs();
 
             self.erc20._mint(receiver, shares);
 
@@ -423,7 +423,7 @@ mod VToken {
             let assets = self
                 .singleton()
                 .calculate_collateral_unsafe(
-                    self.pool_id.read(), self.asset.read(), i257_new(self.erc20.balance_of(owner), true)
+                    self.pool_id.read(), self.asset.read(), I257Trait::new(self.erc20.balance_of(owner), true)
                 );
 
             if assets > room {
@@ -444,7 +444,7 @@ mod VToken {
             }
             self
                 .singleton()
-                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), i257_new(assets, true))
+                .calculate_collateral_shares_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(assets, true))
         }
 
         /// Withdraws assets from the pool and burns vTokens (shares) from the owner of the vTokens
@@ -463,13 +463,13 @@ mod VToken {
                 collateral: Amount {
                     amount_type: AmountType::Delta,
                     denomination: AmountDenomination::Assets,
-                    value: i257_new(assets, true),
+                    value: I257Trait::new(assets, true),
                 },
                 debt: Default::default(),
                 data: ArrayTrait::new().span()
             };
 
-            let shares = self.singleton().modify_position(params).collateral_shares_delta.abs;
+            let shares = self.singleton().modify_position(params).collateral_shares_delta.abs();
 
             if get_caller_address() != owner {
                 self.erc20._spend_allowance(owner, get_caller_address(), shares);
@@ -498,7 +498,7 @@ mod VToken {
                 .calculate_collateral_shares_unsafe(
                     self.pool_id.read(),
                     self.asset.read(),
-                    i257_new(self.calculate_withdrawable_assets(asset_config), true)
+                    I257Trait::new(self.calculate_withdrawable_assets(asset_config), true)
                 );
             let shares = self.erc20.balance_of(owner);
 
@@ -518,7 +518,7 @@ mod VToken {
             if !self.can_withdraw() {
                 return 0;
             }
-            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), i257_new(shares, true))
+            self.singleton().calculate_collateral_unsafe(self.pool_id.read(), self.asset.read(), I257Trait::new(shares, true))
         }
 
         /// Redeems / burns vTokens (shares) from the owner and withdraws assets from the pool
@@ -542,13 +542,13 @@ mod VToken {
                 collateral: Amount {
                     amount_type: AmountType::Delta,
                     denomination: AmountDenomination::Native,
-                    value: i257_new(shares, true),
+                    value: I257Trait::new(shares, true),
                 },
                 debt: Default::default(),
                 data: ArrayTrait::new().span()
             };
 
-            let assets = self.singleton().modify_position(params).collateral_delta.abs;
+            let assets = self.singleton().modify_position(params).collateral_delta.abs();
 
             self.transfer_asset(get_contract_address(), receiver, assets);
 

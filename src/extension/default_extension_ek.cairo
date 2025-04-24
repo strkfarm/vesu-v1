@@ -125,7 +125,7 @@ trait IDefaultExtensionEK<TContractState> {
 
 #[starknet::contract]
 mod DefaultExtensionEK {
-    use alexandria_math::i257::{i257, i257_new};
+    use alexandria_math::i257::{i257, I257Trait};
     use starknet::{
         ContractAddress, contract_address_const, get_contract_address, get_caller_address, event::EventEmitter
     };
@@ -587,7 +587,7 @@ mod DefaultExtensionEK {
                                 collateral: Amount {
                                     amount_type: AmountType::Delta,
                                     denomination: AmountDenomination::Assets,
-                                    value: i257_new(INFLATION_FEE, false),
+                                    value: I257Trait::new(INFLATION_FEE, false),
                                 },
                                 debt: Default::default(),
                                 data: ArrayTrait::new().span()
@@ -705,7 +705,7 @@ mod DefaultExtensionEK {
                         collateral: Amount {
                             amount_type: AmountType::Delta,
                             denomination: AmountDenomination::Assets,
-                            value: i257_new(INFLATION_FEE, false),
+                            value: I257Trait::new(INFLATION_FEE, false),
                         },
                         debt: Default::default(),
                         data: ArrayTrait::new().span()

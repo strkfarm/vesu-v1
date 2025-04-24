@@ -2,13 +2,13 @@ use alexandria_math::i257::i257;
 use starknet::ContractAddress;
 use vesu::{units::SCALE, math::pow_10};
 
-#[derive(PartialEq, Copy, Drop, Serde, starknet::StorePacking)]
+#[derive(PartialEq, Copy, Drop, Serde)]
 struct Position {
     collateral_shares: u256, // packed as u128 [SCALE] 
     nominal_debt: u256, // packed as u123 [SCALE]
 }
 
-#[derive(PartialEq, Copy, Drop, Serde, starknet::StorePacking)]
+#[derive(PartialEq, Copy, Drop, Serde)]
 struct AssetConfig { //                                     | slot | packed | notes
     //                                                      | ---- | ------ | ----- 
     total_collateral_shares: u256, //       [SCALE]         | 1    | u128   |
@@ -60,10 +60,10 @@ enum AmountDenomination {
 }
 
 #[derive(PartialEq, Copy, Drop, Serde, Default)]
-struct Amount {
-    amount_type: AmountType,
-    denomination: AmountDenomination,
-    value: i257,
+pub struct Amount {
+    pub amount_type: AmountType,
+    pub denomination: AmountDenomination,
+    pub value: i257,
 }
 
 #[derive(PartialEq, Copy, Drop, Serde, Default)]

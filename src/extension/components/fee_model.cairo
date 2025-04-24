@@ -7,7 +7,7 @@ struct FeeConfig {
 
 #[starknet::component]
 mod fee_model_component {
-    use alexandria_math::i257::{i257, i257_new};
+    use alexandria_math::i257::{i257, I257Trait};
     use starknet::{ContractAddress, get_contract_address};
     use vesu::{
         units::SCALE,
@@ -92,7 +92,7 @@ mod fee_model_component {
                         collateral: Amount {
                             amount_type: AmountType::Delta,
                             denomination: AmountDenomination::Native,
-                            value: i257_new(amount, true),
+                            value: I257Trait::new(amount, true),
                         },
                         debt: Default::default(),
                         data: ArrayTrait::new().span()
@@ -100,7 +100,7 @@ mod fee_model_component {
                 );
 
             let fee_config = self.fee_configs.read(pool_id);
-            let amount = collateral_delta.abs;
+            let amount = collateral_delta.abs();
 
             IERC20Dispatcher { contract_address: collateral_asset }.transfer(fee_config.fee_recipient, amount);
 
