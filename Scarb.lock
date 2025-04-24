@@ -7,9 +7,17 @@ version = "0.2.1"
 source = "git+https://github.com/keep-starknet-strange/alexandria.git?rev=475eaf015f4e997cff8ec31a5e7b4ab3f9a86e32#475eaf015f4e997cff8ec31a5e7b4ab3f9a86e32"
 
 [[package]]
+name = "snforge_scarb_plugin"
+version = "0.32.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry?tag=v0.32.0#3817c903b640201c72e743b9bbe70a97149828a2"
+
+[[package]]
 name = "snforge_std"
-version = "0.21.0"
-source = "git+https://github.com/foundry-rs/starknet-foundry?tag=v0.21.0#2996b8c1dd66b2715fc67e69578089f278a46790"
+version = "0.32.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry?tag=v0.32.0#3817c903b640201c72e743b9bbe70a97149828a2"
+dependencies = [
+ "snforge_scarb_plugin",
+]
 
 [[package]]
 name = "vesu"
