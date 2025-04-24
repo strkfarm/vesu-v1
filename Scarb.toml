@@ -13,7 +13,7 @@ sierra = true
 [dependencies]
 starknet = "2.5.4"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.21.0" }
-alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "e7b6957" }
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git", rev = "475eaf015f4e997cff8ec31a5e7b4ab3f9a86e32" }
 
 [tool.fmt]
 max-line-length = 120
